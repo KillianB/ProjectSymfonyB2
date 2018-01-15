@@ -1,0 +1,111 @@
+{# ProjectSymfonyB2/app/Resources/views/profil.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        span, th, td {
+            color: black;
+        }
+
+        #table-card {
+            height: 38vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col s12">
+            <div class="card">
+                <div class="card-image">
+                    <img class="activator" src = "{{ asset('images/fondProfil.png') }}" >
+                </div>
+                <div class="card-content black-text">
+                    <div class="row">
+                        <div class="col s3">
+                            <h4 class="card-title   grey-text text-darken-4">Profil de {{userFirstName}}</h4>
+                            <p class="medium-small grey-text">{{userRole}}</p>
+                        </div>
+                        <div class="col s1 right-align right"><a class="btn-floating pulse activator waves-effect waves-light darken-2 right"><i class="material-icons">add</i></a></div>
+
+                    </div>
+                </div>
+                <div class="card-reveal grey lighten-2" style="display: none; transform: translateY(0px);">
+                    <p><span class="card-title grey-text text-darken-4">{{userName}} {{userFirstName}} <i class="material-icons right">close</i></span></p>
+                    <div class="row">
+                        <div class="col s5">
+                            <div class="card teal lighten-1 hoverable">
+                                <div class="card-content white">
+                            <span class="card-title teal-text">Information :
+                                {% if currentUser == idUser or   userRole == roleCurrentUser%}
+                                    <ul id="dropdown2" class="dropdown-content">
+                                <li><a class = "teal-text darken-5 " href="/managementUser/update/{{idUser}}">Modifier le profil</a></li>
+                                <li><a class = "teal-text darken-5" href="/profil/mdp/{{idUser}}/">Modifier le mot de passe</a></li>
+                              </ul>
+                                    <a class="btn dropdown-button right large"  href="#!" data-activates="dropdown2"><i class="material-icons left">create</i><i class="material-icons right">arrow_drop_down</i></a>
+                                {% endif %}
+                            </span>
+                                    <p><i class="waves-effect waves-light material-icons ">work</i><span style="padding-left:20px;">{{userClasse}}</span></p>
+                                    <p><i class="waves-effect waves-light material-icons ">account_circle</i><span style="padding-left:20px;">{{userRole}}</span></p>
+                                    <p><i class="waves-effect waves-light material-icons ">contact_mail</i><span style="padding-left:20px;">{{userMail}}</span></p>
+                                    <p><i class="waves-effect waves-light material-icons">call</i><span style="padding-left:20px;">{{userPhone}}</span></p>
+                                    <p>Identifiant Slack: {{userSlack}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!--{% if currentUser == idUser or   userRole == roleCurrentUser%}
+                    <div class="card-action">
+                        <a class = "teal-text darken-5" href="/managementUser/update/{{idUser}}">Modifier profil</a>
+                        <a class = "teal-text darken-5" href="/profil/mdp/{{idUser}}/">Modifier mots de passe</a>
+                    </div>
+                {% endif %}-->
+            </div>
+        </div>
+
+        <div id="content" class="col s12">
+            <div id="table-card" class="card">
+                <div class="card-content white-text">
+                    <div class="card-title">
+                        <div class="row">
+                            <div class="col s4">
+                                <span>Liste des projets</span>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="bordered highlight">
+                        <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Salle</th>
+                            <th>Ydays pro ou perso</th>
+                            <th>Helper</th>
+                            <th>Chef de projet</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for projet in projets %}
+                            <tr>
+                                <td><a href="/projet/{{projet.getIdProjet}}">{{ projet.getNomProjet }}</a></td>
+                                <td>{{ projet.getSalleProjet }}</td>
+                                {% if projet.getYdaysPersoProProjet == 'pro' %}
+                                    <td>Professionnel</td>
+                                {% else %}
+                                    <td>Personnel</td>
+                                {% endif %}
+                                <td><a href="/profil/{{projet.getIdHelperProjet}}">{{nomHelper[i]}}</a></td>
+                                <td><a href="/profil/{{projet.getIdChefProjet}}">{{nomChefProjet[i]}}</a></td>
+                                {% set i = i + 1 %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

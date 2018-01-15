@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="AppBundle\Entity\Projet" table="Projet">
+    <id name="idProjet" type="integer" column="id_Projet">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="nomProjet" type="string" column="nom_Projet" length="255" nullable="false">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="salleProjet" type="string" column="salle_Projet" length="255" nullable="false">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="projetExtIntProjet" type="string" column="projet_Ext_Int_Projet" length="255" nullable="false">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="ydaysPersoProProjet" type="string" column="ydays_Perso_Pro_Projet" length="5" nullable="false">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="idHelperProjet" type="integer" column="id_helper_Projet" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="idChefProjet" type="integer" column="id_ChefProjet" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="idEvaluation" type="integer" column="id_Evaluation" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <many-to-one field="idEntreprise" target-entity="Entreprise" fetch="LAZY">
+      <join-columns>
+        <join-column name="id_Entreprise" referenced-column-name="id_Entreprise"/>
+      </join-columns>
+    </many-to-one>
+  </entity>
+</doctrine-mapping>

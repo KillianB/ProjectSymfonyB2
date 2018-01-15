@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+<h1>Envoyer un message slack</h1>
+	<ul>
+		{% if users is defined %}	
+		    {% for user in users %}
+		        <li><a href="/slack/{{user.idSlackUser}}">{{user.prenomUser}} {{user.nomUser}}</a></li>
+		    {% endfor %}
+		    {% if id is defined %}
+		    <p>{{ id }}</p>
+		    {% endif %}
+		{% endif %}
+	</ul>
+
+{% if form is defined %}
+	{% if reason is defined %}
+		{% if reason == "wrong" %}
+			<p style="color: red">Entrez un message avant d'envoyer !</p>
+		{% endif %}
+	{% endif %}
+
+	{{ form_start(form) }}
+	    <div class="container">
+	        {{ form_row(form.message) }}
+	    </div>
+
+	    <button type="submit">Envoyer le message</button>
+	{{ form_end(form) }}
+{% endif %}
+
+{% if mdr is defined %}
+	{{ mdr }}
+{% endif %}

@@ -1,0 +1,129 @@
+{# app/Resources/views/base.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        p, span {
+            color: white !important;
+        }
+
+        th, td {
+            color: black;
+        }
+
+        #listSpan {
+            color: black !important;
+        }
+
+        #wrapper {
+            display: flex;
+            position: relative;
+        }
+
+        #slide-out {
+            position: relative;
+            height: 90vh;
+            margin-top: 7.5px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div id="wrapper" class="row">
+        <div id="nav" class="col s2">
+            <div id="sidebar">
+                <ul id="slide-out" class="side-nav fixed">
+                    <li><a href="/listeUser">Liste des utilisateurs</a></li>
+                    <li><a href="/listeProjet">Liste des projets</a></li>
+                    {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" %}
+                        <li><a href="/listeEntreprise">Liste des entreprises</a></li>
+                        {% if app.session.get('role') == "SuperAdmin" %}
+                            <li><a href="/listeLog">Liste des logs</a></li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div id="content" class="col s10">
+            <div class="card">
+                <div class="card-content white-text">
+                    <div class="card-title">
+                        <div class="row">
+                            <div class="col s4">
+                                <span id="listSpan">Liste des Entreprises</span>
+                            </div>
+                            {% if app.session.get('role') == 'SuperAdmin' %}
+                                <div class="col s4 push-s5">
+                                    <a class="waves-effect waves-light btn col s9" href="/managementEntreprise/create"><i class="material-icons left">add</i>Ajouter une entreprise</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s4">
+                                <input style="color: black;" type="text" id="search-input" onkeyup="searchEngine()" placeholder="Recherche...">
+                                <label for="search-input">Rechercher</label>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="bordered highlight">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Adresse</th>
+                                <th>Pays</th>
+                                <th>Numero Siret</th>
+                                {% if app.session.get('role') == "SuperAdmin" %}
+                                    <th>Actions</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody id="table-row">
+                            {% for entreprise in entreprises %}
+                                <tr>
+                                    <td>{{ entreprise.getNomEntreprise }}</td>
+                                    <td>{{ entreprise.toString }}</td>
+                                    <td>{{ entreprise.getPaysEntreprise }}</td>
+                                    <td>{{ entreprise.getSiretEntreprise }}</td>
+                                    {% if app.session.get('role') == "SuperAdmin" %}
+                                        <td><a href="/managementEntreprise/update/{{ entreprise.getIdEntreprise }}"><i style="color: black;" class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Modifier">edit</i></a><a href="/managementEntreprise/delete/{{ entreprise.getIdEntreprise }}"><i style="color: red;" class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Supprimer">delete_forever</i></a></td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock  %}
+
+{% block js %}
+    <script>
+        function searchEngine() {
+            // Declare variables
+            var input, tr, td, i;
+            input = document.getElementById("search-input");
+            tr = document.getElementById("table-row").getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    if (td.innerHTML.indexOf(input.value) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,320 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #5eb5e0;
+        }
+
+        p {
+            color: #000 !important;
+        }
+
+        span {
+            color: white !important;
+        }
+
+        #title {
+            background-color: #0088CC;
+        }
+
+        #navbar {
+            position: fixed;
+            height: 70vh;
+            width: 15vw;
+            max-width: 25vw;
+            overflow: auto;
+            transition: linear 0.5s;
+            z-index: 100;
+            left: -25vw;
+            top: 14%;
+        }
+
+        #navbar li {
+            background-color: white;
+        }
+
+        .visible {
+            left: 0 !important;
+        }
+
+        #infos {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #cptrendu .collapsible-body {
+            max-height: 400px;
+            overflow: auto;
+            background-color: white;
+        }
+
+        .modal {
+            width: 30vw !important ;
+            height: 40vh !important ;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main>
+        <div class="wrapper">
+            <section id="content">
+                <div id="navbar">
+                    <ul class="collapsible" data-collapsible="accordion">
+                        <li>
+                            <div class="collapsible-header">> Chef de projet</div>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li><a href="/profil/{{ chefProjet.getIdUser }}">{{ chefProjet.toString }}</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header">> Membres du projet</div>
+                            <div class="collapsible-body" style="overflow: auto;max-height: 200px;">
+                                <ul>
+                                    {% if members is empty %}
+                                        {% if app.session.get('role') == 'SuperAdmin' or app.session.get('role') == 'Admin' %}
+                                            <li><a href="#selectNumber" class="modal-trigger">Ajouter des membres</a></li>
+                                        {% else %}
+                                            <li>Pas de membres sur ce projet</li>
+                                        {% endif %}
+                                    {% else %}
+                                        {% for member in members %}
+                                            <li><a href="/profil/{{ member.getIdUser }}">{{ member.toString }}</a>
+                                                {% if app.session.get('role') == 'SuperAdmin' or app.session.get('role') == 'Admin' %}
+                                                    <a href="/projet/{{ projet.getIdProjet }}/deleteMember/{{ member.getIdUser }}"><i style="color: red;" class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Supprimer">delete_forever</i></a>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                        </br>
+                                        {% if app.session.get('role') == 'SuperAdmin' or app.session.get('role') == 'Admin' %}
+                                            <li><a href="#selectNumber" class="modal-trigger">Ajouter des membres</a></li>
+                                        {% endif %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header">> Salle assigné au projet</div>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li>Le groupe se trouve en salle {{ projet.getSalleProjet }}</li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header">> Type de projet</div>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li>
+                                        {% if projet.getProjetExtIntProjet == 'ext' %}
+                                            Le projet n'est pas d'innitiative étudiante
+                                        {% else %}
+                                            Le projet est d'initiative étudiante
+                                        {% endif %}
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header">> Portée du projet</div>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li>
+                                        {% if projet.getYdaysPersoProProjet == 'pro' %}
+                                            Projet de YDays Pro
+                                        {% else %}
+                                            Projet de YDays Perso
+                                        {% endif %}
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header">> Helper associé au projet</div>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li><a href="/profil/{{ helper.getIdUser }}">{{ helper.toString }}</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header">> Evaluation du projet</div>
+                            <div class="collapsible-body">
+                                <ul>
+                                    <li>Projet : {{ evaluation.getTypeEvaluation }}</li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% if entreprise != "" %}
+                            <li>
+                                <div class="collapsible-header">> Entrprise liée au proejt</div>
+                                <div class="collapsible-body">
+                                    <ul>
+                                        <li>{{ entreprise.getNomEntreprise }}</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div id="title">
+                    <nav>
+                        <div class="nav-wrapper blue accent-3">
+                            <a class="brand-logo center">Projet : {{ projet.getNomProjet }}</a>
+                            <ul id="nav-mobile" class="left hide-on-med-and-down">
+                                <li><a id="navbar-show"><i class="material-icons left">info</i>Informations</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+
+                <div id="infos" class="grey lighten-3">
+                    <div class="container">
+                        <div class="row">
+                            {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" or
+                                app.session.get('user').getIdUser in memberID or app.session.get('user').getIdUser == chefProjet.getIdUser
+                                or app.session.get('user').getIdUser == helper.getIdUser %}
+                                <div class="col l6">
+                                    <div class="col s12 center-align">
+                                        <h4 class="z-depth-4" style="background-color: #5eb5e0;">COMMENTAIRES</h4>
+                                    </div>
+                                    {% for comment in commentaires %}
+                                        <div class="col s12 m6">
+                                            <div class="card small z-depth-2">
+                                                <div class="card-content white-text" style="overflow: auto">
+                                                    <p>{{ comment[0].getContenuCommentaire }}</p>
+                                                </div>
+                                                <div class="card-action">
+                                                    <div class="col s12">
+                                                        <p>Par {{ comment[1] }}, le {{ comment[0].dateToString }}. Priorité :{{ comment[0].getPrioriteCommentaire }}</p>
+                                                    </div>
+                                                    {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin"
+                                                        or app.session.get('user').getIdUser == comment[0].getIdUser %}
+                                                        <div class="col s6">
+                                                            <a style="color: #29a654;" href="/managementCom/updateCom/{{ comment[0].getIdCommentaire }}/{{ projet.getIdProjet }}" >Modifier</a>
+                                                        </div>
+                                                        {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" or
+                                                            app.session.get('user').getIdUser == comment[0].getIdUser %}
+                                                            <div class="col s6">
+                                                                <a style="color:red;" href="/managementCom/deleteCom/{{ comment[0].getIdCommentaire }}/{{ projet.getIdProjet }}">Supprimer</a>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" or
+                                        app.session.get('user').getIdUser in memberID or app.session.get('user').getIdUser == helper.getIdUser %}
+                                        <div class="col s6 offset-s3">
+                                            <a class="waves-effect waves-light btn col s12" href="/managementCom/add/{{ projet.getIdProjet }}">Ajouter un commentaire</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col l6">
+                                <div class="col s12 center-align">
+                                    <h4 class="z-depth-4" style="background-color: #5eb5e0;">COMPTES-RENDUS</h4>
+                                </div>
+                                {% if compterendus is not empty %}
+                                    <div class="row">
+                                        <ul id="cptrendu" class="collapsible popout col s12" data-collapsible="accordion">
+                                            {% for cr in compterendus %}
+                                                <li>
+                                                    <div class="collapsible-header">> {{ cr[0].getTitreCompteRendu }}</div>
+                                                    <div class="collapsible-body">
+                                                        <div><p style="white-space: pre-wrap;overflow: auto;">{{ cr[0].getContenuCompteRendu }}</p></div>
+                                                        <div><p>Par {{ cr[1] }}.</p></div>
+                                                        <div>
+                                                            {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" or
+                                                                app.session.get('user').getIdUser == chefProjet.getIdUser %}
+                                                                <div class="col s2">
+                                                                    <a style="text-decoration: underline" href="/managementCR/update/{{ cr[0].getIdCompteRendu }}/{{ projet.getIdProjet }}">Modifier</a>
+                                                                </div>
+                                                            {% endif %}
+                                                            {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" or
+                                                                app.session.get('user').getIdUser == chefProjet.getIdUser %}
+                                                                <div class="col s2">
+                                                                    <a style="text-decoration: underline" href="/managementCR/delete/{{ cr[0].getIdCompteRendu }}/{{ projet.getIdProjet }}">Supprimer</a>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" or
+                                    app.session.get('user').getIdUser == chefProjet.getIdUser %}
+                                    <div class="col s6 offset-s3">
+                                        <a class="waves-effect waves-light btn col s12" href="/managementCR/create/{{ projet.getIdProjet }}  ">Ajouter un compte-rendu</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                                <div class="col s6 offset-s3">
+                                    <div class="card white z-depth-4">
+                                        <div class="card-content white-text">
+                                            <p style="color: black !important;">Vous ne pouvez pas accéder aux commentaires ou comptes-rendus de ce projet.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="selectNumber" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h4>Nombre de membres à ajouter</h4>
+                <p>Sélectionnez le nombre de personnes à ajouter au projet</p>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input value="1" id="number" type="number" class="validate">
+                        <label class="active" for="number">Nombre de membres</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="nextPage" onclick="addNumber()" class="modal-action modal-close waves-effect waves-green btn-flat">Suivant</a>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function(){
+            $('.collapsible').collapsible();
+            $('#navbar-show').click(function () {
+                if ( $('#navbar').hasClass("visible")) {
+                    $('#navbar').removeClass("visible");
+                } else {
+                    $('#navbar').addClass("visible");
+                }
+            });
+
+            $('.modal').modal({
+                dismissible: true, // Modal can be dismissed by clicking outside of the modal
+                opacity: .5, // Opacity of modal background
+                inDuration: 300, // Transition in duration
+                outDuration: 200, // Transition out duration
+                startingTop: '4%', // Starting top style attribute
+                endingTop: '10%', // Ending top style attribute
+            });
+
+            $('#nextPage').click(function () {
+                $("#nextPage").attr("href", "/projet/{{ projet.idProjet }}/addMember/" + $("input[type=number]").val());
+            });
+        });
+    </script>
+{% endblock %}

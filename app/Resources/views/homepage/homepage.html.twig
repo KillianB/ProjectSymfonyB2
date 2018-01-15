@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        #wrapper {
+            display: flex;
+            position: relative;
+        }
+
+        #slide-out {
+            position: relative;
+            height: 90vh;
+            margin-top: 7.5px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        h3 {
+            color: #000;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main>
+        <div id="wrapper" class="row">
+            <div id="nav" class="col s2">
+                <div id="sidebar">
+                    <ul id="slide-out" class="side-nav fixed">
+                        <li><a href="/listeUser">Liste des utilisateurs</a></li>
+                        <li><a href="/listeProjet">Liste des projets</a></li>
+                        {% if app.session.get('role') == "SuperAdmin" or app.session.get('role') == "Admin" %}
+                            <li><a href="/listeEntreprise">Liste des entreprises</a></li>
+                            {% if app.session.get('role') == "SuperAdmin" %}
+                                <li><a href="/listeLog">Liste des logs</a></li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <div id="content" class="col s10">
+                <div class="card">
+                    <div class="card-content white-text">
+                        <div class="card-title">
+                            <div class="row">
+                                <div class="col s12">
+                                    <h3>Bienvenue {{ app.session.get('user').toString }} !</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <p style="color: black;">
+                                L'application pour la gestion de projets Ynov est enfin arrivé !
+                                Selon vos droits vous aurez accès à différentes fonctionnalités !
+                                N'hésitez pas à naviguer sur le site !
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block js %}
+    {% if app.session.get('user').getIsReset == 1 %}
+        <script>
+            var $toastContent = $('<span xmlns="http://www.w3.org/1999/html">Votre mot de passe a été réinitialisé par un administrateur,</br> veuillez le modifier pour des raisons de sécurité.</span>').add($('<a class="btn-flat toast-action" href="/profil/mdp/{{ app.session.get('user').getIdUser }}/">Mettre à jour</a>'));
+            Materialize.toast($toastContent, 10000);
+        </script>
+    {% endif %}
+{% endblock %}
